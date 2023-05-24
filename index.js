@@ -2,9 +2,10 @@ const express = require('express')
 const app = express();
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser")
+const cors = require("cors")
 
 
-
+app.use(cors())
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -16,4 +17,4 @@ app.use("/student", require("./routes/student.js"))
 app.get("/", (req, res)=>{
     res.send("How are you all");
 })
-app.listen(3000);
+app.listen(4000);
