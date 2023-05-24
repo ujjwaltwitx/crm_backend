@@ -19,7 +19,7 @@ router.get("/list/", async (req, res) => {
 
 router.get("/single", async (req, res) => {
   try {
-    const id = req.body.id;
+    const id = req.query.id;
     const student = await StudentModel.findById(id);
     res.json(student);
   } catch (error) {
@@ -46,7 +46,6 @@ router.put("/update", async(req, res) => {
 router.post("/save", (req, res) => {
   try {
     const data = req.body;
-    console.log(data);
     const student = new StudentModel(data);
     student.save();
     res.status(200);
