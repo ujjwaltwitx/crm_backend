@@ -1,0 +1,33 @@
+{
+    "firstName" : "Ujjwal",
+    "lastName" : "Singh",
+    "dob":"2016-05-18T16:00:00Z",
+    "gender":"Male",
+    "schoolName" : "Ujjwal",
+    "schoolYear" : 2,
+    "email" : "ujjwal@gmail.com",
+    "phone" : 9559971272,
+    "addressDetail" : {
+        "addressStreet" : "Line 1 Melbourne",
+        "suburb" : "Industrial 1",
+        "postCode" : 274301,
+        "parentsEmail" : "ujjwal@gmail.com"
+    },
+    "parentDetail" : [{
+        "name" : "Poonam Singh",
+        "relation" : "Mother",
+        "phone" : 9559971272
+    }],
+    "healthDetail" : {
+        "allergicFood" : "Brinjal",
+        "medications" : "Pracmol",
+        "allergicMedication" : "Nothing",
+        "healthProblem" : "Anasthesia"
+    },
+    "tutoringDetail" : {
+        "subjects" : ["Maths", "Science"],
+        "frequency" : 2,
+        "paymentMethod" : "ezyPay"
+    },
+    "status" : "Active"
+}
