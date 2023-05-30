@@ -1,4 +1,5 @@
 const express = require("express");
+const nodemailer = require("nodemailer")
 const router = express.Router();
 const StudentModel = require("../models/student.js");
 
@@ -54,5 +55,34 @@ router.post("/save", (req, res) => {
     res.send(error);
   }
 });
+
+
+
+router.get("/sendemails", (req, res) => {
+  const data = req.body;
+  const transporter = nodemailer.createTransport({
+    service : "gmail",
+    auth : {
+      user: "ujjwalcpj123@gmail.com",
+      pass : "vrsrhwlslyezonwd"
+    }
+  })
+
+  var mailOptions = {
+    from: 'ujjwalcpj123@gmail.com',
+    to: data.emails,
+    subject: data.subject,
+    text: data.body
+  };
+
+  transporter.sendMail(mailOptions, (error, info)=>{
+    if(error){
+      res.send(error)
+    }
+    else{
+      res.send(info)
+    }
+  })
+})
 
 module.exports = router;
