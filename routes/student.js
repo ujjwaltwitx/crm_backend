@@ -7,6 +7,22 @@ const countPerPage = 10;
 router.get("/list/", async (req, res) => {
   try {
     const filters = req.body || {};
+    filters.approved = true;
+    const page = req.query.p || 0;
+    const studentList = await StudentModel.find(filters, {"firstName" : 1, "email" : 1, "phone" : 1, "tutoringDetail.subjects" : 1, "status": 1})
+      .skip(page * countPerPage)
+      .limit(countPerPage);
+    res.json(studentList);
+  } catch (error) {
+    res.status = 500;
+    res.send(error);
+  }
+});
+
+router.get("/newenrollment/", async (req, res) => {
+  try {
+    const filters = req.body || {};
+    filters.approved = false;
     const page = req.query.p || 0;
     const studentList = await StudentModel.find(filters, {"firstName" : 1, "email" : 1, "phone" : 1, "tutoringDetail.subjects" : 1, "status": 1})
       .skip(page * countPerPage)
@@ -33,13 +49,25 @@ router.get("/misc", async(req, res) => {
     const inactive = await StudentModel.find({"status" : "Inactive"}).count();
     const onlinePayment = await StudentModel.find({'tutoringDetail.paymentMethod' : "ezyPay"}).count();
     const offlinePayment = await StudentModel.find({'tutoringDetail.paymentMethod' : "cash"}).count();
-    const data = {active, inactive, onlinePayment, offlinePayment}
+    const dayWiseCount = await StudentModel.aggregate([
+      {
+        $unwind: "$tutoringDetail.days"
+      },
+      {
+        $group: {
+          _id: "$tutoringDetail.days",
+          count: { $sum: 1 },
+          // documents: { $push: "$$ROOT" }
+        }
+      }
+    ])
+    const data = {active, inactive, onlinePayment, offlinePayment, dayWiseCount}
     res.json(data);
 })
 
 router.put("/update", async(req, res) => {
   const data = req.body;
-  console.log(Object.keys(data));
+  // console.log(Object.keys(data));
   // await StudentModel.find({"_id" : Object(data._id)}).updateOne({"$set" : data})
   return res.send("Record updated successfully");
 })
@@ -58,7 +86,7 @@ router.post("/save", (req, res) => {
 
 
 
-router.get("/sendemails", (req, res) => {
+router.post("/sendemails", (req, res) => {
   const data = req.body;
   const transporter = nodemailer.createTransport({
     service : "gmail",

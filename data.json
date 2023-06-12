@@ -27,7 +27,9 @@
     "tutoringDetail" : {
         "subjects" : ["Maths", "Science"],
         "frequency" : 2,
+        "days" : ["Sunday", "Monday"],
         "paymentMethod" : "ezyPay"
     },
-    "status" : "Active"
+    "status" : "Active",
+    "approved" : "true"
 }

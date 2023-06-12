@@ -21,6 +21,7 @@ const healthSchema = mongoose.Schema({
 
 const tutoringSchema = mongoose.Schema({
     subjects : [String],
+    days : [String],
     frequency : Number,
     paymentMethod : String,
 })
@@ -49,6 +50,7 @@ const studentSchema = mongoose.Schema({
         required : true,
     },
     status : String,
+    approved : Boolean
 })
 
 const StudentModel = mongoose.model('student', studentSchema)
