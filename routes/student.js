@@ -1,5 +1,5 @@
 const express = require("express");
-const nodemailer = require("nodemailer")
+const nodemailer = require("nodemailer");
 const router = express.Router();
 const StudentModel = require("../models/student.js");
 
@@ -9,7 +9,15 @@ router.get("/list/", async (req, res) => {
     const filters = req.body || {};
     filters.approved = true;
     const page = req.query.p || 0;
-    const studentList = await StudentModel.find(filters, {"firstName" : 1, "email" : 1, "phone" : 1, "tutoringDetail.subjects" : 1, "status": 1})
+    const studentList = await StudentModel.find(filters, {
+      firstName: 1,
+      email: 1,
+      phone: 1,
+      "tutoringDetail.subjects": 1,
+      "addressDetail.parentsEmail": 1,
+      status: 1,
+      approved: 1,
+    })
       .skip(page * countPerPage)
       .limit(countPerPage);
     res.json(studentList);
@@ -24,7 +32,13 @@ router.get("/newenrollment/", async (req, res) => {
     const filters = req.body || {};
     filters.approved = false;
     const page = req.query.p || 0;
-    const studentList = await StudentModel.find(filters, {"firstName" : 1, "email" : 1, "phone" : 1, "tutoringDetail.subjects" : 1, "status": 1})
+    const studentList = await StudentModel.find(filters, {
+      firstName: 1,
+      email: 1,
+      phone: 1,
+      "tutoringDetail.subjects": 1,
+      status: 1,
+    })
       .skip(page * countPerPage)
       .limit(countPerPage);
     res.json(studentList);
@@ -39,38 +53,71 @@ router.get("/single", async (req, res) => {
     const id = req.query.id;
     const student = await StudentModel.findById(id);
     res.json(student);
-  } catch (error) {
-    
-  }
-})
+  } catch (error) {}
+});
 
-router.get("/misc", async(req, res) => {
-    const active = await StudentModel.find({"status" : "Active"}).count();
-    const inactive = await StudentModel.find({"status" : "Inactive"}).count();
-    const onlinePayment = await StudentModel.find({'tutoringDetail.paymentMethod' : "ezyPay"}).count();
-    const offlinePayment = await StudentModel.find({'tutoringDetail.paymentMethod' : "cash"}).count();
-    const dayWiseCount = await StudentModel.aggregate([
-      {
-        $unwind: "$tutoringDetail.days"
+router.get("/misc", async (req, res) => {
+  const active = await StudentModel.find({ status: "Active" }).count();
+  const inactive = await StudentModel.find({ status: "Inactive" }).count();
+  const onlinePayment = await StudentModel.find({
+    "tutoringDetail.paymentMethod": "ezyPay",
+  }).count();
+  const offlinePayment = await StudentModel.find({
+    "tutoringDetail.paymentMethod": "cash",
+  }).count();
+  const dayWiseCount = await StudentModel.aggregate([
+    {
+      $unwind: "$tutoringDetail.days",
+    },
+    {
+      $group: {
+        _id: "$tutoringDetail.days",
+        count: { $sum: 1 },
+        // documents: { $push: "$$ROOT" }
       },
-      {
-        $group: {
-          _id: "$tutoringDetail.days",
-          count: { $sum: 1 },
-          // documents: { $push: "$$ROOT" }
-        }
-      }
-    ])
-    const data = {active, inactive, onlinePayment, offlinePayment, dayWiseCount}
-    res.json(data);
-})
+    },
+  ]);
+  const data = {
+    active,
+    inactive,
+    onlinePayment,
+    offlinePayment,
+    dayWiseCount,
+  };
+  res.json(data);
+});
 
-router.put("/update", async(req, res) => {
+router.put("/update", async (req, res) => {
   const data = req.body;
   // console.log(Object.keys(data));
   // await StudentModel.find({"_id" : Object(data._id)}).updateOne({"$set" : data})
   return res.send("Record updated successfully");
-})
+});
+
+router.put("/:id/approval", async (req, res) => {
+  const { id } = req.params;
+  const { approved } = req.body;
+
+  try {
+    const student = await StudentModel.findById(id);
+    if (!student) {
+      return res.status(400).json({
+        error: "Student Not Found",
+      });
+    }
+
+    student.approved = approved;
+    student.status = approved ? "Active" : "Inactive";
+    await student.save();
+
+    res.json({
+      message: "Approval status updated successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 router.post("/save", (req, res) => {
   try {
@@ -84,33 +131,96 @@ router.post("/save", (req, res) => {
   }
 });
 
-
-
 router.post("/sendemails", (req, res) => {
   const data = req.body;
   const transporter = nodemailer.createTransport({
-    service : "gmail",
-    auth : {
+    service: "gmail",
+    auth: {
       user: "ujjwalcpj123@gmail.com",
-      pass : "vrsrhwlslyezonwd"
-    }
-  })
+      pass: "vrsrhwlslyezonwd",
+    },
+  });
 
   var mailOptions = {
-    from: 'ujjwalcpj123@gmail.com',
+    from: "ujjwalcpj123@gmail.com",
     to: data.emails,
     subject: data.subject,
-    text: data.body
+    text: data.body,
   };
 
-  transporter.sendMail(mailOptions, (error, info)=>{
-    if(error){
-      res.send(error)
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      res.send(error);
+    } else {
+      res.send(info);
     }
-    else{
-      res.send(info)
+  });
+});
+
+router.post("/:id/comments", async (req, res) => {
+  const { id } = req.params;
+  const { author, text } = req.body;
+
+  try {
+    const student = await StudentModel.findById(id);
+    if (!student) {
+      return res.status(400).json({
+        error: "Student Not Found!",
+      });
     }
-  })
-})
+
+    const newComment = {
+      author,
+      text,
+    };
+
+    student.comments.push(newComment);
+    await student.save();
+
+    res.json({
+      message: "Comment added successfully",
+      comment: newComment,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+router.delete("/:id/comments/:commentId", async (req, res) => {
+  const { id, commentId } = req.params;
+
+  try {
+    const student = await StudentModel.findById(id);
+
+    if (!student) {
+      return res.status(400).json({
+        error: "Student Not Found!",
+      });
+    }
+
+    //Finding the comment from index
+    const commentIndex = student.comments.findIndex(
+      (comment) => comment._id.toString() === commentId
+    );
+
+    if (commentIndex === -1) {
+      return res.status(400).json({
+        error: "Comment Not Found!",
+      });
+    }
+
+    // removing content from the database
+    student.comments.splice(commentIndex, 1);
+    await student.save();
+
+    res.json({
+      message: "Comment removed successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 module.exports = router;

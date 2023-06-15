@@ -36,6 +36,12 @@ const studentSchema = mongoose.Schema({
     schoolYear: Number,
     email: String,
     phone: Number,
+    comment: [
+        {
+            author: String,
+            text: String
+        }
+    ],
     addressDetail : {
         type : addressSchema,
         required: true,
