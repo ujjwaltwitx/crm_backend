@@ -57,7 +57,7 @@ const studentSchema = mongoose.Schema({
     },
     status : String,
     approved : Boolean
-})
+}, { timestamps: true })
 
 const StudentModel = mongoose.model('student', studentSchema)
 
