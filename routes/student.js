@@ -60,15 +60,22 @@ router.get("/single", async (req, res) => {
 });
 
 router.get("/misc", async (req, res) => {
-  const active = await StudentModel.find({ status: "Active" }).count();
-  const inactive = await StudentModel.find({ status: "Inactive" }).count();
+  const active = await StudentModel.find({ status: "Active", "approved" : true }).count();
+  const inactive = await StudentModel.find({ status: "Inactive", "approved" : true }).count();
   const onlinePayment = await StudentModel.find({
+    "approved" : true,
     "tutoringDetail.paymentMethod": "online",
   }).count();
   const offlinePayment = await StudentModel.find({
+    "approved" : true,
     "tutoringDetail.paymentMethod": "offline",
   }).count();
   const dayWiseCount = await StudentModel.aggregate([
+    {
+      $match: {
+        "approved": true
+      }
+    },
     {
       $unwind: "$tutoringDetail.days",
     },

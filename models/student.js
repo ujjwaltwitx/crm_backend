@@ -1,4 +1,4 @@
-const { default : mongoose } = require("mongoose");
+const { default : mongoose, mongo } = require("mongoose");
 const addressSchema = mongoose.Schema({
     addressStreet: String,
     suburb: String,
@@ -19,9 +19,15 @@ const healthSchema = mongoose.Schema({
     healthProblem : String,
 })
 
+const timeSlotSchema = mongoose.Schema({
+    startAt : Date,
+    endAt : Date,
+})
+
 const tutoringSchema = mongoose.Schema({
     subjects : [String],
     days : [String],
+    timeSlots : [timeSlotSchema],
     frequency : Number,
     paymentMethod : String,
 })

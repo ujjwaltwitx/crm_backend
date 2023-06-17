@@ -28,7 +28,7 @@
         "subjects" : ["Maths", "Science"],
         "frequency" : 2,
         "days" : ["Sunday", "Monday"],
-        "paymentMethod" : "ezyPay"
+        "paymentMethod" : "online"
     },
     "status" : "Active",
     "approved" : "true"
