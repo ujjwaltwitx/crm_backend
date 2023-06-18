@@ -19,15 +19,15 @@ const healthSchema = mongoose.Schema({
     healthProblem : String,
 })
 
-const timeSlotSchema = mongoose.Schema({
-    startAt : Date,
-    endAt : Date,
-})
+// const timeSlotSchema = mongoose.Schema({
+//     startAt : Date,
+//     endAt : Date,
+// })
 
 const tutoringSchema = mongoose.Schema({
     subjects : [String],
     days : [String],
-    timeSlots : [timeSlotSchema],
+    timeSlots : [Number],
     frequency : Number,
     paymentMethod : String,
 })

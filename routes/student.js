@@ -96,9 +96,26 @@ router.get("/misc", async (req, res) => {
   res.json(data);
 });
 
-router.put("/update", async (req, res) => {
-  const data = req.body;
-  return res.send("Record updated successfully");
+router.put('/:id', async (req, res) => {
+  const { id } = req.params;
+  const updates = req.body;
+  try {
+    // Find the student by ID and update the fields
+    const student = await StudentModel.findById(id);
+    if (!student) {
+      return res.status(404).json({ error: 'Student not found' });
+    }
+    var keyList = Object.keys(updates)
+    console.log(keyList)
+    for( var key in keyList){
+      var data = keyList[key]
+      student[data] = updates[data]
+    }
+    await student.save()
+    res.status(200).send("Update successful")
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
 });
 
 
