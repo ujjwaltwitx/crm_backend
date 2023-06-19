@@ -1,39 +1,39 @@
-const { default : mongoose, mongo } = require("mongoose");
+const { default: mongoose, mongo } = require("mongoose");
 const addressSchema = mongoose.Schema({
-    addressStreet: String,
-    suburb: String,
-    postCode: Number,
-    parentsEmail: String,
-})
+  addressStreet: String,
+  suburb: String,
+  postCode: Number,
+  parentsEmail: String,
+});
 
 const parentSchema = mongoose.Schema({
-    name : String,
-    relation : String,
-    phone : Number,
-})
+  name: String,
+  relation: String,
+  phone: Number,
+});
 
 const healthSchema = mongoose.Schema({
-    allergicFood : String,
-    medications : String,
-    allergicMedication : String,
-    healthProblem : String,
-})
+  allergicFood: String,
+  medications: String,
+  allergicMedication: String,
+  healthProblem: String,
+});
 
 const timeSlotSchema = mongoose.Schema({
-    day : String,
-    hours : Number
-})
+  day: String,
+  hours: Number,
+});
 
 const tutoringSchema = mongoose.Schema({
-    subjects : [String],
-    days : [String],
-    timeSlots : [timeSlotSchema],
-    frequency : Number,
-    paymentMethod : String,
-})
+  subjects: [String],
+  days: [String],
+  timeSlots: [timeSlotSchema],
+  frequency: Number,
+  paymentMethod: String,
+});
 
-
-const studentSchema = mongoose.Schema({
+const studentSchema = mongoose.Schema(
+  {
     firstName: String,
     lastName: String,
     dob: Date,
@@ -42,29 +42,31 @@ const studentSchema = mongoose.Schema({
     schoolYear: Number,
     email: String,
     phone: Number,
-    comment: [
-        {
-            author: String,
-            text: String
-        }
+    comments: [
+      {
+        // author: String,
+        text: String,
+      },
     ],
-    addressDetail : {
-        type : addressSchema,
-        required: true,
+    addressDetail: {
+      type: addressSchema,
+      required: true,
     },
-    parentDetail : [parentSchema],
-    healthDetail : {
-        type: healthSchema,
-        required: true,
+    parentDetail: [parentSchema],
+    healthDetail: {
+      type: healthSchema,
+      required: true,
     },
-    tutoringDetail : {
-        type : tutoringSchema,
-        required : true,
+    tutoringDetail: {
+      type: tutoringSchema,
+      required: true,
     },
-    status : String,
-    approved : Boolean
-}, { timestamps: true })
+    status: String,
+    approved: Boolean,
+  },
+  { timestamps: true }
+);
 
-const StudentModel = mongoose.model('student', studentSchema)
+const StudentModel = mongoose.model("student", studentSchema);
 
-module.exports = StudentModel
+module.exports = StudentModel;

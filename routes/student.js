@@ -19,6 +19,7 @@ router.post("/list/", async (req, res) => {
       "addressDetail.parentsEmail": 1,
       status: 1,
       approved: 1,
+      comments: 1,
     })
       .skip(page * countPerPage)
       .limit(countPerPage);
@@ -199,71 +200,70 @@ router.post("/sendemails", (req, res) => {
   });
 });
 
-// router.post("/:id/comments", async (req, res) => {
-//   const { id } = req.params;
-//   const { author, text } = req.body;
+router.post("/:id/comments", async (req, res) => {
+  const { id } = req.params;
+  const { text } = req.body;
 
-//   try {
-//     const student = await StudentModel.findById(id);
-//     if (!student) {
-//       return res.status(400).json({
-//         error: "Student Not Found!",
-//       });
-//     }
+  try {
+    const student = await StudentModel.findById(id);
+    if (!student) {
+      return res.status(400).json({
+        error: "Student Not Found!",
+      });
+    }
 
-//     const newComment = {
-//       author,
-//       text,
-//     };
+    const newComment = {
+      text,
+    };
 
-//     student.comments.push(newComment);
-//     await student.save();
+    student.comments.push(newComment);
+    await student.save();
 
-//     res.json({
-//       message: "Comment added successfully",
-//       comment: newComment,
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Server error" });
-//   }
-// });
+    res.json({
+      message: "Comment added successfully",
+      comment: newComment,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
-// router.delete("/:id/comments/:commentId", async (req, res) => {
-//   const { id, commentId } = req.params;
+router.delete("/:id/comments/:commentId", async (req, res) => {
+  const { id, commentId } = req.params;
 
-//   try {
-//     const student = await StudentModel.findById(id);
+  try {
+    const student = await StudentModel.findById(id);
 
-//     if (!student) {
-//       return res.status(400).json({
-//         error: "Student Not Found!",
-//       });
-//     }
+    if (!student) {
+      return res.status(400).json({
+        error: "Student Not Found!",
+      });
+    }
 
-//     //Finding the comment from index
-//     const commentIndex = student.comments.findIndex(
-//       (comment) => comment._id.toString() === commentId
-//     );
+    //Finding the comment from index
+    const commentIndex = student.comments.findIndex(
+      (comment) => comment._id.toString() === commentId
+    );
 
-//     if (commentIndex === -1) {
-//       return res.status(400).json({
-//         error: "Comment Not Found!",
-//       });
-//     }
+    if (commentIndex === -1) {
+      return res.status(400).json({
+        error: "Comment Not Found!",
+      });
+    }
 
-//     // removing content from the database
-//     student.comments.splice(commentIndex, 1);
-//     await student.save();
+    // removing content from the database
+    student.comments.splice(commentIndex, 1);
+    await student.save();
 
-//     res.json({
-//       message: "Comment removed successfully",
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Server error" });
-//   }
-// });
+    res.json({
+      message: "Comment removed successfully",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 // APIs from here provide CRUD operations to Appointments
 
