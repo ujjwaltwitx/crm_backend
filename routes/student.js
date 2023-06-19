@@ -6,7 +6,6 @@ const AppointmentModel = require("../models/appointment.js");
 
 const countPerPage = 10;
 
-
 //  APIs from here are meant for CRUD on students
 router.post("/list/", async (req, res) => {
   try {
@@ -60,21 +59,27 @@ router.get("/single", async (req, res) => {
 });
 
 router.get("/misc", async (req, res) => {
-  const active = await StudentModel.find({ status: "Active", "approved" : true }).count();
-  const inactive = await StudentModel.find({ status: "Inactive", "approved" : true }).count();
+  const active = await StudentModel.find({
+    status: "Active",
+    approved: true,
+  }).count();
+  const inactive = await StudentModel.find({
+    status: "Inactive",
+    approved: true,
+  }).count();
   const onlinePayment = await StudentModel.find({
-    "approved" : true,
+    approved: true,
     "tutoringDetail.paymentMethod": "online",
   }).count();
   const offlinePayment = await StudentModel.find({
-    "approved" : true,
+    approved: true,
     "tutoringDetail.paymentMethod": "offline",
   }).count();
   const dayWiseCount = await StudentModel.aggregate([
     {
       $match: {
-        "approved": true
-      }
+        approved: true,
+      },
     },
     {
       $unwind: "$tutoringDetail.days",
@@ -96,29 +101,37 @@ router.get("/misc", async (req, res) => {
   res.json(data);
 });
 
-router.put('/:id', async (req, res) => {
+router.put("/:id", async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
   try {
     // Find the student by ID and update the fields
     const student = await StudentModel.findById(id);
     if (!student) {
-      return res.status(404).json({ error: 'Student not found' });
+      return res.status(404).json({ error: "Student not found" });
     }
-    var keyList = Object.keys(updates)
-    console.log(keyList)
-    for( var key in keyList){
-      var data = keyList[key]
-      student[data] = updates[data]
+    var keyList = Object.keys(updates);
+    console.log(keyList);
+    for (var key in keyList) {
+      var data = keyList[key];
+      student[data] = updates[data];
     }
-    await student.save()
-    res.status(200).send("Update successful")
+    await student.save();
+    res.status(200).json({ message: "Update successful" });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-
+// for development purpose only
+router.get("/all", async (req, res) => {
+  try {
+    const studentList = await StudentModel.find({});
+    res.json(studentList);
+  } catch (error) {
+    res.status(500).json({ error: "Server Error!" });
+  }
+});
 
 // router.put("/:id/approval", async (req, res) => {
 //   const { id } = req.params;
@@ -157,7 +170,6 @@ router.post("/save", (req, res) => {
     res.send(error);
   }
 });
-
 
 // APIS from here are meant for providing basic email functionality
 
@@ -253,11 +265,10 @@ router.post("/sendemails", (req, res) => {
 //   }
 // });
 
-
 // APIs from here provide CRUD operations to Appointments
 
-router.post('/saveappointment', async (req, res) => {
-  const data = req.body
+router.post("/saveappointment", async (req, res) => {
+  const data = req.body;
   const existingAppointment = await Appointment.findOne({
     $or: [
       { startTime: { $lt: endTime }, endTime: { $gt: startTime } }, // Overlapping appointment
@@ -266,13 +277,12 @@ router.post('/saveappointment', async (req, res) => {
   });
 
   if (existingAppointment) {
-    return res.status(400).json({ error: 'Appointment time is not available' });
+    return res.status(400).json({ error: "Appointment time is not available" });
   }
 
-  const model = new AppointmentModel(data)
+  const model = new AppointmentModel(data);
   await model.save();
-  res.status(200).send("Appointment scheduled")
-
-})
+  res.status(200).send("Appointment scheduled");
+});
 
 module.exports = router;
