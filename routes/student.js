@@ -165,8 +165,7 @@ router.post("/save", (req, res) => {
     data.approved = false;
     const student = new StudentModel(data);
     student.save();
-    res.status(200);
-    res.send("Data received");
+    res.status(200).send("");
   } catch (error) {
     res.send(error);
   }
