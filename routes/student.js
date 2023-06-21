@@ -211,9 +211,7 @@ router.post("/:id/comments", async (req, res) => {
       });
     }
 
-    const newComment = {
-      text,
-    };
+    const newComment = text
 
     student.comments.push(newComment);
     await student.save();
