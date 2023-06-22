@@ -170,7 +170,6 @@ router.post("/save", (req, res) => {
     data.approved = false;
     const student = new StudentModel(data);
     student.save();
-    res.status(200);
     res.status(200).json({
       message: "Data received",
     });
@@ -219,9 +218,7 @@ router.post("/:id/comments", async (req, res) => {
       });
     }
 
-    const newComment = {
-      text,
-    };
+    const newComment = text;
 
     student.comments.push(newComment);
     await student.save();
