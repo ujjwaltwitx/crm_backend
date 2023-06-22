@@ -68,6 +68,10 @@ router.get("/misc", async (req, res) => {
     status: "Inactive",
     approved: true,
   }).count();
+  const pending = await StudentModel.find({
+    status: "Pending",
+    approved: false,
+  }).count();
   const onlinePayment = await StudentModel.find({
     approved: true,
     "tutoringDetail.paymentMethod": "online",
@@ -95,6 +99,7 @@ router.get("/misc", async (req, res) => {
   const data = {
     active,
     inactive,
+    pending,
     onlinePayment,
     offlinePayment,
     dayWiseCount,
@@ -166,9 +171,11 @@ router.post("/save", (req, res) => {
     const student = new StudentModel(data);
     student.save();
     res.status(200);
-    res.send("Data received");
+    res.status(200).json({
+      message: "Data received",
+    });
   } catch (error) {
-    res.send(error);
+    res.status(500).json({ error: error });
   }
 });
 

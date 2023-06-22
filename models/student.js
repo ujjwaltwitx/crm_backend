@@ -40,8 +40,6 @@ const studentSchema = mongoose.Schema(
     gender: String,
     schoolName: String,
     schoolYear: Number,
-    email: String,
-    phone: Number,
     comments: [
       {
         // author: String,
