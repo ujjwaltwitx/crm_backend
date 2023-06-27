@@ -21,8 +21,8 @@ const healthSchema = mongoose.Schema({
 
 const timeSlotSchema = mongoose.Schema({
   day: String,
-  startAt: Date,
-  endAt: Date,
+  startAt: String,
+  endAt: String,
 });
 
 const tutoringSchema = mongoose.Schema({
