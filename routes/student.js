@@ -15,7 +15,7 @@ router.post("/list/", async (req, res) => {
       firstName: 1,
       "tutoringDetail.subjects": 1,
       "addressDetail.parentsEmail": 1,
-      "parentDetail" : 1,
+      parentDetail: 1,
       status: 1,
       approved: 1,
       comments: 1,
@@ -232,6 +232,7 @@ router.post("/:id/comments", async (req, res) => {
   }
 });
 
+// Deleting Specific Comment of Particular student
 router.delete("/:id/comments/:commentId", async (req, res) => {
   const { id, commentId } = req.params;
 
@@ -268,24 +269,116 @@ router.delete("/:id/comments/:commentId", async (req, res) => {
   }
 });
 
+// Deleting all comments of a particular student
+router.delete("/:id/comments", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const student = await StudentModel.findById(id);
+
+    if (!student) {
+      return res.status(400).json({
+        error: "Student Not Found!",
+      });
+    }
+
+    const newComment = [];
+    student.comments = newComment;
+    await student.save();
+    res.json({
+      message: "All Comments removed successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 // APIs from here provide CRUD operations to Appointments
 
 router.post("/saveappointment", async (req, res) => {
   const data = req.body;
-  const existingAppointment = await Appointment.findOne({
-    $or: [
-      { startTime: { $lt: endTime }, endTime: { $gt: startTime } }, // Overlapping appointment
-      { startTime: { $gte: startTime, $lte: endTime } }, // Existing appointment within the requested range
-    ],
-  });
+  const { startTime, endTime } = data;
 
-  if (existingAppointment) {
-    return res.status(400).json({ error: "Appointment time is not available" });
+  if (!startTime || !endTime) {
+    return res
+      .status(400)
+      .json({ error: "Start time and end time are required" });
   }
 
-  const model = new AppointmentModel(data);
-  await model.save();
-  res.status(200).send("Appointment scheduled");
+  if (startTime >= endTime) {
+    return res.status(400).json({ error: "Invalid time range" });
+  }
+
+  try {
+    const existingAppointment = await AppointmentModel.findOne({
+      $or: [
+        { startTime: { $lte: startTime }, endTime: { $gt: startTime } },
+        { startTime: { $lt: endTime }, endTime: { $gte: endTime } },
+      ],
+    });
+
+    if (existingAppointment) {
+      return res
+        .status(409)
+        .json({ error: "Appointment time slot is already booked" });
+    }
+
+    const newAppointment = new AppointmentModel(data);
+    await newAppointment.save();
+
+    res.status(201).json(newAppointment);
+  } catch (error) {
+    console.error("Error creating appointment:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
+
+router.get("/getappointment", async (req, res) => {
+  const filter = req.query.filter;
+
+  try {
+    let appointments;
+
+    if (filter === "all") {
+      appointments = await AppointmentModel.find({});
+    } else if (filter === "upcoming") {
+      appointments = await AppointmentModel.find({
+        startTime: { $gte: new Date() },
+      });
+    } else if (filter === "week") {
+      const endDate = new Date(+new Date() + 7 * 24 * 60 * 60 * 1000);
+      appointments = await AppointmentModel.find({
+        startTime: { $gte: new Date(), $lte: endDate },
+      });
+    } else if (filter === "today") {
+      const endDate = new Date(+new Date() + 1 * 24 * 60 * 60 * 1000);
+      appointments = await AppointmentModel.find({
+        startTime: { $gte: new Date(), $lte: endDate },
+      });
+    } else {
+      appointments = await AppointmentModel.find({});
+    }
+
+    res.status(200).json(appointments);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.delete("/appointment/:id", async (req, res) => {
+  try {
+    const appointmentId = req.params.id;
+
+    // Delete the appointment by its ID
+    await AppointmentModel.findByIdAndDelete(appointmentId);
+
+    res.status(200).json({ message: "Appointment deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Server Error!" });
+  }
+});
+
+
 
 module.exports = router;
