@@ -6,7 +6,7 @@ const cors = require("cors")
 
 
 app.use(cors({
-    origin : "https://crm-education.vercel.app"
+    origin : ["https://crm-education.vercel.app", "http://localhost:3000"]
 }))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }));
