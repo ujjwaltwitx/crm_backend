@@ -340,25 +340,24 @@ router.get("/getappointment", async (req, res) => {
     let appointments;
 
     if (filter === "all") {
-      appointments = await AppointmentModel.find({});
+      appointments = await AppointmentModel.find({}).sort({"createdAt" : 1});
     } else if (filter === "upcoming") {
       appointments = await AppointmentModel.find({
         startTime: { $gte: new Date() },
-      });
+      }).sort({"createdAt" : 1});
     } else if (filter === "week") {
       const endDate = new Date(+new Date() + 7 * 24 * 60 * 60 * 1000);
       appointments = await AppointmentModel.find({
         startTime: { $gte: new Date(), $lte: endDate },
-      });
+      }).sort({"createdAt" : 1});
     } else if (filter === "today") {
       const endDate = new Date(+new Date() + 1 * 24 * 60 * 60 * 1000);
       appointments = await AppointmentModel.find({
         startTime: { $gte: new Date(), $lte: endDate },
-      });
+      }).sort({"createdAt" : 1});
     } else {
-      appointments = await AppointmentModel.find({});
+      appointments = await AppointmentModel.find({}).sort({"createdAt" : 1})
     }
-
     res.status(200).json(appointments);
   } catch (error) {
     res.status(500).json({ error: error.message });
