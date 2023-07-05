@@ -43,7 +43,6 @@ const studentSchema = mongoose.Schema(
     schoolYear: Number,
     comments: [
       {
-        // author: String,
         text: String,
       },
     ],

@@ -5,7 +5,9 @@ const bodyParser = require("body-parser")
 const cors = require("cors")
 
 
-app.use(cors())
+app.use(cors({
+    origin : "https://crm-education.vercel.app"
+}))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }));
 
