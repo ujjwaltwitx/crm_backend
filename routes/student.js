@@ -4,7 +4,7 @@ const router = express.Router();
 const StudentModel = require("../models/student.js");
 const AppointmentModel = require("../models/appointment.js");
 
-const countPerPage = 10;
+const countPerPage = 15;
 
 //  APIs from here are meant for CRUD on students
 router.post("/list/", async (req, res) => {
@@ -109,6 +109,8 @@ router.get("/misc", async (req, res) => {
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
+
+  console.log(updates)
   try {
     // Find the student by ID and update the fields
     const student = await StudentModel.findById(id);
@@ -116,7 +118,7 @@ router.put("/:id", async (req, res) => {
       return res.status(404).json({ error: "Student not found" });
     }
     var keyList = Object.keys(updates);
-    console.log(keyList);
+    // console.log(keyList);
     for (var key in keyList) {
       var data = keyList[key];
       student[data] = updates[data];
@@ -124,6 +126,7 @@ router.put("/:id", async (req, res) => {
     await student.save();
     res.status(200).json({ message: "Update successful" });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ error: "Server error" });
   }
 });
@@ -298,6 +301,8 @@ router.delete("/:id/comments", async (req, res) => {
 router.post("/saveappointment", async (req, res) => {
   const data = req.body;
   const { startTime, endTime } = data;
+
+  console.log(data)
 
   if (!startTime || !endTime) {
     return res
