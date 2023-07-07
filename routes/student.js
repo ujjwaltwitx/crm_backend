@@ -110,7 +110,7 @@ router.put("/:id", async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
 
-  console.log(updates)
+  // console.log(updates)
   try {
     // Find the student by ID and update the fields
     const student = await StudentModel.findById(id);

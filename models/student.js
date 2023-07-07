@@ -9,7 +9,7 @@ const addressSchema = mongoose.Schema({
 const parentSchema = mongoose.Schema({
   name: String,
   relation: String,
-  phone: Number,
+  phone: String,
 });
 
 const healthSchema = mongoose.Schema({
@@ -40,7 +40,7 @@ const studentSchema = mongoose.Schema(
     dob: Date,
     gender: String,
     schoolName: String,
-    schoolYear: Number,
+    schoolYear: String,
     comments: [
       {
         text: String,
