@@ -126,7 +126,6 @@ router.put("/:id", async (req, res) => {
     await student.save();
     res.status(200).json({ message: "Update successful" });
   } catch (error) {
-    console.log(error)
     res.status(500).json({ error: "Server error" });
   }
 });
