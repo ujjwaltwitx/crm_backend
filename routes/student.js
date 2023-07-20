@@ -1,5 +1,6 @@
 const express = require("express");
 const nodemailer = require("nodemailer");
+const moment = require("moment");
 const router = express.Router();
 const StudentModel = require("../models/student.js");
 const AppointmentModel = require("../models/appointment.js");
@@ -301,7 +302,7 @@ router.post("/saveappointment", async (req, res) => {
   const data = req.body;
   const { startTime, endTime } = data;
 
-  console.log(data)
+  console.log(data);
 
   if (!startTime || !endTime) {
     return res
@@ -312,6 +313,10 @@ router.post("/saveappointment", async (req, res) => {
   if (startTime >= endTime) {
     return res.status(400).json({ error: "Invalid time range" });
   }
+
+  // Converting the time to UTC
+  const startTimeUTC = moment(startTime).utc().toISOString();
+  const endTimeUTC = moment(endTime).utc().toISOString();
 
   try {
     const existingAppointment = await AppointmentModel.findOne({
@@ -327,7 +332,11 @@ router.post("/saveappointment", async (req, res) => {
         .json({ error: "Appointment time slot is already booked" });
     }
 
-    const newAppointment = new AppointmentModel(data);
+    const newAppointment = new AppointmentModel({
+      ...data,
+      startTime: startTimeUTC,
+      endTime: endTimeUTC,
+    });
     await newAppointment.save();
 
     res.status(201).json(newAppointment);
@@ -344,23 +353,23 @@ router.get("/getappointment", async (req, res) => {
     let appointments;
 
     if (filter === "all") {
-      appointments = await AppointmentModel.find({}).sort({"createdAt" : 1});
+      appointments = await AppointmentModel.find({}).sort({ createdAt: 1 });
     } else if (filter === "upcoming") {
       appointments = await AppointmentModel.find({
         startTime: { $gte: new Date() },
-      }).sort({"createdAt" : 1});
+      }).sort({ createdAt: 1 });
     } else if (filter === "week") {
       const endDate = new Date(+new Date() + 7 * 24 * 60 * 60 * 1000);
       appointments = await AppointmentModel.find({
         startTime: { $gte: new Date(), $lte: endDate },
-      }).sort({"createdAt" : 1});
+      }).sort({ createdAt: 1 });
     } else if (filter === "today") {
       const endDate = new Date(+new Date() + 1 * 24 * 60 * 60 * 1000);
       appointments = await AppointmentModel.find({
         startTime: { $gte: new Date(), $lte: endDate },
-      }).sort({"createdAt" : 1});
+      }).sort({ createdAt: 1 });
     } else {
-      appointments = await AppointmentModel.find({}).sort({"createdAt" : 1})
+      appointments = await AppointmentModel.find({}).sort({ createdAt: 1 });
     }
     res.status(200).json(appointments);
   } catch (error) {
@@ -381,7 +390,5 @@ router.delete("/appointment/:id", async (req, res) => {
     res.status(500).json({ error: "Server Error!" });
   }
 });
-
-
 
 module.exports = router;
