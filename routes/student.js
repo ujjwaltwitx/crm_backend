@@ -14,6 +14,7 @@ router.post("/list/", async (req, res) => {
     const page = req.query.p || 0;
     const studentList = await StudentModel.find(filters, {
       firstName: 1,
+      lastName: 1,
       "tutoringDetail.subjects": 1,
       "addressDetail.parentsEmail": 1,
       parentDetail: 1,
