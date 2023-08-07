@@ -60,6 +60,16 @@ router.get("/single", async (req, res) => {
   } catch (error) {}
 });
 
+
+router.get("/search", async (req, res) => {
+  try{const email = req.query.email;
+  const student = await StudentModel.find({"addressDetail.parentsEmail" : email});
+  res.json(student);}
+  catch (error){
+    res.send("no data found").statusCode = 500;
+  }
+});
+
 router.get("/misc", async (req, res) => {
   const active = await StudentModel.find({
     status: "Active",
