@@ -57,15 +57,18 @@ router.get("/single", async (req, res) => {
     const id = req.query.id;
     const student = await StudentModel.findById(id);
     res.json(student);
-  } catch (error) {}
+  } catch (error) { }
 });
 
 
 router.get("/search", async (req, res) => {
-  try{const email = req.query.email;
-  const student = await StudentModel.find({"addressDetail.parentsEmail" : email});
-  res.json(student);}
-  catch (error){
+  try {
+    const firstName = req.query.firstName;
+    const lastName = req.query.lastName;
+    const student = await StudentModel.find({ "firstName": firstName, 'lastName' : lastName }, {firstName : 1, lastName : 1, "addressDetail.parentsEmail" : 1} )
+    res.json(student);
+  }
+  catch (error) {
     res.send("no data found").statusCode = 500;
   }
 });
