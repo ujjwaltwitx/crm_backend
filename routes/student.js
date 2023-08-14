@@ -63,9 +63,16 @@ router.get("/single", async (req, res) => {
 
 router.get("/search", async (req, res) => {
   try {
-    const firstName = req.query.firstName;
+    var filter = {}
+    const firstName = req.query.firstName
     const lastName = req.query.lastName;
-    const student = await StudentModel.find({ "firstName": firstName, 'lastName' : lastName }, {firstName : 1, lastName : 1, "addressDetail.parentsEmail" : 1} )
+    if(firstName != null){
+      filter.firstName = firstName
+    }
+    if(lastName != null){
+      filter.lastName = lastName
+    }
+    const student = await StudentModel.find(filter, {firstName : 1, lastName : 1, "addressDetail.parentsEmail" : 1} )
     res.json(student);
   }
   catch (error) {
