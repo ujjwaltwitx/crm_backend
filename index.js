@@ -6,7 +6,7 @@ const cors = require("cors");
 
 app.use(
   cors({
-    origin: ["https://crm-education.vercel.app", "http://localhost:3000", "https://highhopestutoring.com.au"],
+    origin: ["https://crm-education.vercel.app", "http://localhost:3000", "https://www.highhopestutoring.com.au"],
   })
 );
 app.use(bodyParser.json());
